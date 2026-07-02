@@ -38,6 +38,12 @@ public class User {
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal reliabilityScore;
 
+    @Column(nullable = false)
+    private long correctPredictions;
+
+    @Column(nullable = false)
+    private long totalPredictions;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -100,6 +106,22 @@ public class User {
 
     public void setReliabilityScore(BigDecimal reliabilityScore) {
         this.reliabilityScore = reliabilityScore;
+    }
+
+    public long getCorrectPredictions() {
+        return correctPredictions;
+    }
+
+    public void setCorrectPredictions(long correctPredictions) {
+        this.correctPredictions = correctPredictions;
+    }
+
+    public long getTotalPredictions() {
+        return totalPredictions;
+    }
+
+    public void setTotalPredictions(long totalPredictions) {
+        this.totalPredictions = totalPredictions;
     }
 
     public LocalDateTime getCreatedAt() {

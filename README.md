@@ -252,6 +252,22 @@ Only an administrator can resolve a market, and resolution is allowed only after
 
 A stored resolution record prevents the same market from being settled twice.
 
+### Reliability Score
+
+Each resolved market counts as one prediction for every user who holds a positive
+position in that market. Holding the winning outcome counts as correct; holding
+only losing outcomes counts as incorrect. Position size does not change the result.
+
+```text
+Reliability score = correct resolved predictions
+                    / total resolved predictions x 100
+```
+
+The score is rounded to two decimal places and constrained to `0–100`. Reliability
+updates run inside the settlement transaction after the duplicate-resolution check,
+so a market cannot be counted twice. The leaderboard ranks reliability first and
+uses portfolio value as the tie-breaker.
+
 ## Demo Flow
 
 For a concise presentation:

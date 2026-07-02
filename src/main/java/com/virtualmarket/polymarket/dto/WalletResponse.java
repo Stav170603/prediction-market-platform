@@ -8,6 +8,7 @@ public class WalletResponse {
     private Long userId;
     private String username;
     private BigDecimal balance;
+    private BigDecimal reliabilityScore;
 
     public WalletResponse() {
     }
@@ -42,5 +43,13 @@ public class WalletResponse {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public BigDecimal getReliabilityScore() {
+        return reliabilityScore;
+    }
+
+    public void setReliabilityScore(BigDecimal reliabilityScore) {
+        this.reliabilityScore = reliabilityScore;
     }
 }

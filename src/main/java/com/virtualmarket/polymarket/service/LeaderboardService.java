@@ -42,7 +42,8 @@ public class LeaderboardService {
     public List<LeaderboardResponse> getLeaderboard() {
         List<LeaderboardEntry> entries = userRepository.findAll().stream()
                 .map(this::toEntry)
-                .sorted(Comparator.comparing(LeaderboardEntry::portfolioValue).reversed())
+                .sorted(Comparator.comparing(LeaderboardEntry::reliabilityScore).reversed()
+                        .thenComparing(Comparator.comparing(LeaderboardEntry::portfolioValue).reversed()))
                 .toList();
 
         AtomicInteger rank = new AtomicInteger(1);
@@ -55,7 +56,8 @@ public class LeaderboardService {
                         entry.walletBalance(),
                         entry.openPositions(),
                         entry.totalTrades(),
-                        entry.portfolioValue()
+                        entry.portfolioValue(),
+                        entry.reliabilityScore()
                 ))
                 .toList();
     }
@@ -83,7 +85,8 @@ public class LeaderboardService {
                 walletBalance,
                 openPositions.size(),
                 totalTrades,
-                portfolioValue
+                portfolioValue,
+                user.getReliabilityScore() == null ? BigDecimal.ZERO : user.getReliabilityScore()
         );
     }
 
@@ -105,7 +108,8 @@ public class LeaderboardService {
             BigDecimal walletBalance,
             long openPositions,
             long totalTrades,
-            BigDecimal portfolioValue
+            BigDecimal portfolioValue,
+            BigDecimal reliabilityScore
     ) {
     }
 }

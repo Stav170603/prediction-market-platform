@@ -12,6 +12,8 @@ import { PriceChart } from './PriceChart';
 import { updateCurrentUser } from '@/services/authStorage';
 import { getMarketPriceHistory, getMarketStatistics } from '@/services/marketService';
 import { executeTrade, getTradesByMarket } from '@/services/tradeService';
+import { getMyPositions } from '@/services/positionService';
+import { getMyWallet } from '@/services/walletService';
 import { TradeOutcomeName, TradeResponseDto, TradeType } from '@/types/api';
 import { EmptyState, LoadingSpinner } from './Loading';
 import { useAuth } from '@/contexts/AuthContext';
@@ -57,6 +59,27 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
     return parsedQuantity * selectedPrice;
   }, [parsedQuantity, selectedPrice]);
 
+  const walletQuery = useQuery({
+    queryKey: ['wallet', currentUser?.userId],
+    queryFn: getMyWallet,
+    enabled: Boolean(currentUser),
+    retry: false,
+  });
+
+  const positionsQuery = useQuery({
+    queryKey: ['positions', currentUser?.userId],
+    queryFn: getMyPositions,
+    enabled: Boolean(currentUser),
+    retry: false,
+  });
+
+  const availableBalance = walletQuery.data?.balance ?? currentUser?.walletBalance;
+  const ownedQuantity = toNumber(
+    positionsQuery.data?.find(
+      (position) => position.marketId === market.marketId && position.outcomeId === selectedOutcomeId
+    )?.quantity
+  );
+
   const recentTradesQuery = useQuery({
     queryKey: ['trades-by-market', market.marketId],
     queryFn: () => getTradesByMarket(market.marketId),
@@ -89,8 +112,8 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
       if (!selectedOutcomeId) {
         throw new Error('Selected outcome is unavailable.');
       }
-      if (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0) {
-        throw new Error('Enter a quantity greater than zero.');
+      if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+        throw new Error('Quantity must be a positive whole number.');
       }
       if (tradeType !== 'BUY' && tradeType !== 'SELL') {
         throw new Error('Trade type must be BUY or SELL.');
@@ -105,6 +128,7 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
       });
     },
     onSuccess: (response) => {
+      setQuantity('1');
       updateCurrentUser({ walletBalance: response.walletBalanceAfterTrade });
       refreshCurrentUser();
       toast.success(`${tradeType} ${outcomeName} trade completed.`);
@@ -136,12 +160,24 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
       toast.error('Selected outcome is unavailable.');
       return;
     }
-    if (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0) {
-      toast.error('Enter a quantity greater than zero.');
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+      toast.error('Quantity must be a positive whole number.');
       return;
     }
     if (tradeType !== 'BUY' && tradeType !== 'SELL') {
       toast.error('Trade type must be BUY or SELL.');
+      return;
+    }
+    if (tradeType === 'BUY'
+        && availableBalance !== undefined
+        && estimatedCost > toNumber(availableBalance)) {
+      toast.error('Insufficient balance.');
+      return;
+    }
+    if (tradeType === 'SELL'
+        && positionsQuery.data !== undefined
+        && parsedQuantity > ownedQuantity) {
+      toast.error('Insufficient position to sell.');
       return;
     }
     tradeMutation.mutate();
@@ -347,10 +383,15 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
                   </label>
                   <input
                     type="number"
-                    min="0.0001"
-                    step="0.0001"
+                    min="1"
+                    step="1"
                     value={quantity}
-                    onChange={(event) => setQuantity(event.target.value)}
+                    onChange={(event) => {
+                      const nextQuantity = event.target.value;
+                      if (/^\d*$/.test(nextQuantity)) {
+                        setQuantity(nextQuantity);
+                      }
+                    }}
                     className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
                     required
                   />

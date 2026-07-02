@@ -27,7 +27,9 @@ public class TradeController {
 
     @PostMapping
     @Operation(summary = "Execute a BUY or SELL trade")
-    public TradeResponse executeTrade(@RequestBody TradeRequest request) {
+    public TradeResponse executeTrade(@RequestBody TradeRequest request, Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+        request.setUserId(currentUser.getId());
         return tradeService.executeTrade(request);
     }
 

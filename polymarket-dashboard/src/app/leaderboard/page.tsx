@@ -67,6 +67,9 @@ function LeaderboardRow({ trader }: { trader: LeaderboardResponseDto }) {
       <td className="px-4 py-4 text-right font-semibold text-green-700 dark:text-green-300">
         {formatMoney(trader.portfolioValue)}
       </td>
+      <td className="px-4 py-4 text-right font-semibold text-blue-700 dark:text-blue-300">
+        {toNumber(trader.reliabilityScore).toFixed(2)}%
+      </td>
       <td className="px-4 py-4 text-right text-slate-700 dark:text-slate-300">
         {formatCount(trader.openPositions)}
       </td>
@@ -108,7 +111,7 @@ export default function LeaderboardPage() {
         <div>
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Top Traders</h1>
           <p className="mt-2 text-slate-600 dark:text-slate-400">
-            Ranked by portfolio value across wallet balance and open positions
+            Ranked by historical prediction accuracy, then portfolio value
           </p>
         </div>
         <div className="inline-flex items-center gap-2 self-start rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 sm:self-auto">
@@ -140,6 +143,7 @@ export default function LeaderboardPage() {
                   <th className="px-4 py-3 text-left font-semibold text-slate-900 dark:text-white">Username</th>
                   <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">Wallet Balance</th>
                   <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">Portfolio Value</th>
+                  <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">Reliability</th>
                   <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">Open Positions</th>
                   <th className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-white">Total Trades</th>
                 </tr>

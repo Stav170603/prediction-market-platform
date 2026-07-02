@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, Briefcase, Mail, Shield, User, Wallet } from 'lucide-react';
+import { BarChart3, Briefcase, Mail, Shield, Target, User, Wallet } from 'lucide-react';
 import { getMyPositions } from '@/services/positionService';
 import { getMyTrades } from '@/services/tradeService';
 import { getMyWallet } from '@/services/walletService';
@@ -101,7 +101,7 @@ export default function ProfilePage() {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-lg bg-green-100 p-2 text-green-700 dark:bg-green-900 dark:text-green-200">
@@ -111,6 +111,20 @@ export default function ProfilePage() {
                 <p className="text-sm text-slate-600 dark:text-slate-400">Wallet balance</p>
                 <p className="text-3xl font-bold text-slate-900 dark:text-white">
                   {formatMoney(walletBalance)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-purple-100 p-2 text-purple-700 dark:bg-purple-900 dark:text-purple-200">
+                <Target className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Reliability</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                  {toNumber(walletQuery.data?.reliabilityScore).toFixed(2)}%
                 </p>
               </div>
             </div>

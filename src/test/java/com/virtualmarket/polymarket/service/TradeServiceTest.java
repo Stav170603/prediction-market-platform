@@ -97,14 +97,11 @@ class TradeServiceTest {
         yesOutcome = outcome(30L, "YES");
         noOutcome = outcome(31L, "NO");
 
-        when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
-        when(userRepository.findById(20L)).thenReturn(Optional.of(user));
-        when(walletRepository.findByUserId(20L)).thenReturn(Optional.of(wallet));
-        when(marketOutcomeRepository.findById(30L)).thenReturn(Optional.of(yesOutcome));
     }
 
     @Test
     void successfulBuyUpdatesBalancesPricesAndPriceHistory() {
+        stubRequiredEntities();
         when(positionRepository.findByUserAndMarketAndOutcome(user, market, yesOutcome))
                 .thenReturn(Optional.empty());
         when(marketOutcomeRepository.findByMarketAndName(market, "YES"))
@@ -135,13 +132,14 @@ class TradeServiceTest {
 
     @Test
     void buyIsRejectedWhenWalletBalanceIsInsufficient() {
+        stubRequiredEntities();
         wallet.setBalance(new BigDecimal("4.9999"));
         when(positionRepository.findByUserAndMarketAndOutcome(user, market, yesOutcome))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.BUY, "10.0000")))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Insufficient wallet balance");
+                .hasMessageContaining("Insufficient balance");
 
         verify(walletRepository, never()).save(any());
         verify(tradeRepository, never()).save(any());
@@ -150,6 +148,7 @@ class TradeServiceTest {
 
     @Test
     void sellIsRejectedWhenPositionQuantityIsInsufficient() {
+        stubRequiredEntities();
         Position position = new Position();
         position.setUser(user);
         position.setMarket(market);
@@ -169,6 +168,7 @@ class TradeServiceTest {
 
     @Test
     void successfulSellCreditsWalletAndReducesOwnedPosition() {
+        stubRequiredEntities();
         yesOutcome.setShares(new BigDecimal("5.0000"));
 
         Position position = new Position();
@@ -199,6 +199,36 @@ class TradeServiceTest {
         assertThat(historyCaptor.getValue().getNoPrice()).isEqualByComparingTo("0.4950");
         verify(tradeRepository).save(any());
         verify(walletTransactionRepository).save(any());
+    }
+
+    @Test
+    void decimalQuantityIsRejected() {
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.BUY, "1.0002")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Quantity must be a positive whole number");
+
+        verify(walletRepository, never()).save(any());
+        verify(tradeRepository, never()).save(any());
+    }
+
+    @Test
+    void zeroAndNegativeQuantitiesAreRejected() {
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.BUY, "0")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Quantity must be a positive whole number");
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.BUY, "-1")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Quantity must be a positive whole number");
+
+        verify(walletRepository, never()).save(any());
+        verify(tradeRepository, never()).save(any());
+    }
+
+    private void stubRequiredEntities() {
+        when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
+        when(userRepository.findById(20L)).thenReturn(Optional.of(user));
+        when(walletRepository.findByUserId(20L)).thenReturn(Optional.of(wallet));
+        when(marketOutcomeRepository.findById(30L)).thenReturn(Optional.of(yesOutcome));
     }
 
     private MarketOutcome outcome(Long id, String name) {

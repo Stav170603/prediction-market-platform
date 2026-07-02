@@ -26,8 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MarketResolutionService {
@@ -105,6 +108,7 @@ public class MarketResolutionService {
         // - Losing positions receive 0
         // - Double settlement is prevented by checking if a MarketResolution already exists for the market
         List<Position> positions = positionRepository.findByMarket(market);
+        updateReliabilityScores(positions, winningOutcome);
         int usersPaid = 0;
         BigDecimal totalPayout = BigDecimal.ZERO;
 
@@ -158,5 +162,39 @@ public class MarketResolutionService {
         response.setTotalPayoutAmount(totalPayout);
 
         return response;
+    }
+
+    private void updateReliabilityScores(List<Position> positions, MarketOutcome winningOutcome) {
+        /*
+         * Each market counts as one prediction for a participating user, regardless of
+         * position size. Holding any positive quantity of the winning outcome counts
+         * as correct. Reliability is lifetime accuracy:
+         *     correct resolved predictions / total resolved predictions * 100
+         * Users with only losing positions therefore receive an incorrect result,
+         * which leaves a zero score unchanged or lowers an established score.
+         */
+        Map<User, Boolean> predictionResults = new LinkedHashMap<>();
+        for (Position position : positions) {
+            if (position.getQuantity() == null || position.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                continue;
+            }
+            boolean holdsWinningOutcome = position.getOutcome().getId().equals(winningOutcome.getId());
+            predictionResults.merge(position.getUser(), holdsWinningOutcome, Boolean::logicalOr);
+        }
+
+        predictionResults.forEach((user, correct) -> {
+            long totalPredictions = user.getTotalPredictions() + 1;
+            long correctPredictions = user.getCorrectPredictions() + (correct ? 1 : 0);
+            BigDecimal reliabilityScore = BigDecimal.valueOf(correctPredictions)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(totalPredictions), 2, RoundingMode.HALF_UP)
+                    .max(BigDecimal.ZERO)
+                    .min(BigDecimal.valueOf(100));
+
+            user.setTotalPredictions(totalPredictions);
+            user.setCorrectPredictions(correctPredictions);
+            user.setReliabilityScore(reliabilityScore);
+            userRepository.save(user);
+        });
     }
 }

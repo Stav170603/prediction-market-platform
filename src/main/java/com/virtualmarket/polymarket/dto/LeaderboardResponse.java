@@ -12,6 +12,7 @@ public class LeaderboardResponse {
     private long openPositions;
     private long totalTrades;
     private BigDecimal portfolioValue;
+    private BigDecimal reliabilityScore;
 
     public LeaderboardResponse() {
     }
@@ -24,7 +25,8 @@ public class LeaderboardResponse {
             BigDecimal walletBalance,
             long openPositions,
             long totalTrades,
-            BigDecimal portfolioValue
+            BigDecimal portfolioValue,
+            BigDecimal reliabilityScore
     ) {
         this.rank = rank;
         this.userId = userId;
@@ -34,6 +36,7 @@ public class LeaderboardResponse {
         this.openPositions = openPositions;
         this.totalTrades = totalTrades;
         this.portfolioValue = portfolioValue;
+        this.reliabilityScore = reliabilityScore;
     }
 
     public int getRank() {
@@ -98,5 +101,13 @@ public class LeaderboardResponse {
 
     public void setPortfolioValue(BigDecimal portfolioValue) {
         this.portfolioValue = portfolioValue;
+    }
+
+    public BigDecimal getReliabilityScore() {
+        return reliabilityScore;
+    }
+
+    public void setReliabilityScore(BigDecimal reliabilityScore) {
+        this.reliabilityScore = reliabilityScore;
     }
 }

@@ -100,8 +100,10 @@ public class TradeService {
         BigDecimal quantity = request.getQuantity();
         TradeType type = request.getType();
 
-        if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than zero");
+        if (quantity == null
+                || quantity.compareTo(BigDecimal.ZERO) <= 0
+                || quantity.stripTrailingZeros().scale() > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be a positive whole number");
         }
 
         Market market = marketRepository.findById(marketId)
@@ -144,7 +146,7 @@ public class TradeService {
         if (type == TradeType.BUY) {
             // check funds
             if (wallet.getBalance().compareTo(total) < 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient wallet balance");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
             }
             // deduct wallet
             wallet.setBalance(wallet.getBalance().subtract(total));

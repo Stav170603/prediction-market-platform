@@ -30,6 +30,7 @@ export interface WalletResponseDto {
   userId: number;
   username: string;
   balance: number | string;
+  reliabilityScore: number | string;
 }
 
 export interface WalletTransactionResponseDto {
@@ -166,6 +167,7 @@ export interface LeaderboardResponseDto {
   openPositions: number;
   totalTrades: number;
   portfolioValue: number | string;
+  reliabilityScore: number | string;
 }
 
 export interface MarketStatisticsDto {

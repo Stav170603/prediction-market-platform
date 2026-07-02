@@ -47,6 +47,7 @@ public class WalletApiService {
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
         response.setBalance(wallet.getBalance());
+        response.setReliabilityScore(user.getReliabilityScore());
 
         return response;
     }

@@ -69,6 +69,7 @@ class TradeServiceTest {
     @BeforeEach
     void setUp() {
         PricingService pricingService = new PricingService(marketOutcomeRepository, priceHistoryRepository);
+        MarketLifecycleService marketLifecycleService = new MarketLifecycleService(marketRepository);
         tradeService = new TradeService(
                 marketRepository,
                 userRepository,
@@ -78,7 +79,8 @@ class TradeServiceTest {
                 tradeRepository,
                 walletTransactionRepository,
                 pricingService,
-                realTimeEventService
+                realTimeEventService,
+                marketLifecycleService
         );
 
         market = new Market();
@@ -221,6 +223,42 @@ class TradeServiceTest {
                 .hasMessageContaining("Quantity must be a positive whole number");
 
         verify(walletRepository, never()).save(any());
+        verify(tradeRepository, never()).save(any());
+    }
+
+    @Test
+    void buyingInClosedMarketIsRejected() {
+        market.setStatus(MarketStatus.CLOSED);
+        when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
+
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.BUY, "1")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Market is closed for trading");
+
+        verify(tradeRepository, never()).save(any());
+    }
+
+    @Test
+    void sellingInClosedMarketIsRejected() {
+        market.setStatus(MarketStatus.CLOSED);
+        when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
+
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.SELL, "1")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Market is closed for trading");
+
+        verify(tradeRepository, never()).save(any());
+    }
+
+    @Test
+    void buyingInCancelledMarketIsRejected() {
+        market.setStatus(MarketStatus.CANCELLED);
+        when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
+
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.BUY, "1")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Market is closed for trading");
+
         verify(tradeRepository, never()).save(any());
     }
 

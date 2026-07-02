@@ -36,7 +36,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/dashboard/summary").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events/stream").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/trades/by-market/*").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/markets/admin/markets", "/api/markets/resolve").hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/markets/admin/markets",
+                                "/api/markets/resolve",
+                                "/api/markets/*/cancel"
+                        ).hasRole("ADMIN")
                         .requestMatchers("/api/trades/**", "/api/positions/**", "/api/wallets/**").authenticated()
                         .anyRequest().authenticated()
                 )

@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Shield, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
-import { createMarket, getMarkets, resolveMarket } from '@/services/marketService';
+import { cancelMarket, createMarket, getMarkets, resolveMarket } from '@/services/marketService';
 import { Market, TradeOutcomeName } from '@/types/api';
 import { ErrorBoundary, LoadingSpinner } from '@/components/Loading';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,7 +48,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 function isResolvable(market: Market, now: number): boolean {
-  if (market.status !== 'OPEN' || !market.resolutionDate) return false;
+  if ((market.status !== 'OPEN' && market.status !== 'CLOSED') || !market.resolutionDate) return false;
   const resolutionTime = new Date(market.resolutionDate).getTime();
   return Number.isFinite(resolutionTime) && resolutionTime <= now;
 }
@@ -128,6 +128,19 @@ export default function AdminPage() {
     },
   });
 
+  const cancelMarketMutation = useMutation({
+    mutationFn: (marketId: number) => cancelMarket(marketId),
+    onSuccess: async () => {
+      toast.success('Market cancelled successfully.');
+      await queryClient.invalidateQueries({ queryKey: ['admin-markets'] });
+    },
+    onError: (error) => {
+      if (!axios.isAxiosError(error)) {
+        toast.error(getErrorMessage(error, 'Unable to cancel market.'));
+      }
+    },
+  });
+
   const markets = marketsQuery.data?.markets ?? [];
   const now = useMemo(() => Date.now(), [marketsQuery.dataUpdatedAt]);
 
@@ -150,6 +163,12 @@ export default function AdminPage() {
     }
 
     resolveMarketMutation.mutate({ market, outcome: normalizedOutcome });
+  };
+
+  const handleCancel = (market: Market) => {
+    if (window.confirm(`Cancel "${market.title}"? This cannot be undone.`)) {
+      cancelMarketMutation.mutate(market.marketId);
+    }
   };
 
   if (!isAuthInitialized) return <LoadingSpinner />;
@@ -299,7 +318,8 @@ export default function AdminPage() {
                       {formatDateTime(market.resolutionDate)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      {isResolvable(market, now) ? (
+                      <div className="flex justify-end gap-2">
+                      {isResolvable(market, now) && (
                         <button
                           type="button"
                           onClick={() => handleResolve(market)}
@@ -308,9 +328,22 @@ export default function AdminPage() {
                         >
                           {resolveMarketMutation.isPending ? 'Resolving...' : 'Resolve'}
                         </button>
-                      ) : (
-                        <span className="text-xs text-slate-500">-</span>
                       )}
+                      {(market.status === 'OPEN' || market.status === 'CLOSED') && (
+                        <button
+                          type="button"
+                          onClick={() => handleCancel(market)}
+                          disabled={cancelMarketMutation.isPending}
+                          className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium transition-colors"
+                        >
+                          {cancelMarketMutation.isPending ? 'Cancelling...' : 'Cancel Market'}
+                        </button>
+                      )}
+                      {!isResolvable(market, now)
+                        && market.status !== 'OPEN'
+                        && market.status !== 'CLOSED'
+                        && <span className="text-xs text-slate-500">-</span>}
+                      </div>
                     </td>
                   </tr>
                 ))}

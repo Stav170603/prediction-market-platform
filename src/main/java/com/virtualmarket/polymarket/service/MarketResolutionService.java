@@ -77,8 +77,11 @@ public class MarketResolutionService {
         Market market = marketRepository.findById(marketId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Market not found"));
 
-        if (market.getStatus() != MarketStatus.OPEN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Market is not open for resolution");
+        if (market.getStatus() == MarketStatus.CANCELLED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cancelled market cannot be resolved");
+        }
+        if (market.getStatus() == MarketStatus.RESOLVED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Market has already been resolved");
         }
 
         if (market.getResolutionDate() == null || LocalDateTime.now().isBefore(market.getResolutionDate())) {

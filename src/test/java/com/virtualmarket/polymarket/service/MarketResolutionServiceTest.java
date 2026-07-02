@@ -81,12 +81,11 @@ class MarketResolutionServiceTest {
         admin.setRole(UserRole.ADMIN);
 
         when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(admin));
-        when(marketOutcomeRepository.findById(20L)).thenReturn(Optional.of(winningOutcome));
     }
 
     @Test
     void settlementImprovesWinnerAndDecreasesLosingUsersReliability() {
+        stubResolutionDependencies();
         User winner = user(2L, 1, 2, "50.00");
         User loser = user(3L, 1, 1, "100.00");
         MarketOutcome losingOutcome = outcome(21L, "NO");
@@ -110,6 +109,7 @@ class MarketResolutionServiceTest {
 
     @Test
     void resolvingSameMarketTwiceDoesNotDoubleCountReliability() {
+        stubResolutionDependencies();
         User winner = user(2L, 0, 0, "0.00");
         when(positionRepository.findByMarket(market))
                 .thenReturn(List.of(position(winner, winningOutcome, "2.0000")));
@@ -123,6 +123,20 @@ class MarketResolutionServiceTest {
         assertThat(winner.getCorrectPredictions()).isEqualTo(1);
         assertThat(winner.getTotalPredictions()).isEqualTo(1);
         assertThat(winner.getReliabilityScore()).isEqualByComparingTo("100.00");
+    }
+
+    @Test
+    void resolvingCancelledMarketIsRejected() {
+        market.setStatus(MarketStatus.CANCELLED);
+
+        assertThatThrownBy(() -> service.resolveMarket(request()))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Cancelled market cannot be resolved");
+    }
+
+    private void stubResolutionDependencies() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(admin));
+        when(marketOutcomeRepository.findById(20L)).thenReturn(Optional.of(winningOutcome));
     }
 
     private ResolutionRequest request() {

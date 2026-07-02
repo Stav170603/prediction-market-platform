@@ -49,6 +49,7 @@ public class TradeService {
     private final WalletTransactionRepository walletTransactionRepository;
     private final PricingService pricingService;
     private final RealTimeEventService realTimeEventService;
+    private final MarketLifecycleService marketLifecycleService;
 
     public TradeService(
             MarketRepository marketRepository,
@@ -59,7 +60,8 @@ public class TradeService {
             TradeRepository tradeRepository,
             WalletTransactionRepository walletTransactionRepository,
             PricingService pricingService,
-            RealTimeEventService realTimeEventService
+            RealTimeEventService realTimeEventService,
+            MarketLifecycleService marketLifecycleService
     ) {
         this.marketRepository = marketRepository;
         this.userRepository = userRepository;
@@ -70,6 +72,7 @@ public class TradeService {
         this.walletTransactionRepository = walletTransactionRepository;
         this.pricingService = pricingService;
         this.realTimeEventService = realTimeEventService;
+        this.marketLifecycleService = marketLifecycleService;
     }
 
     public TradeResponse buyShares(TradeRequest request) {
@@ -108,6 +111,11 @@ public class TradeService {
 
         Market market = marketRepository.findById(marketId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Market not found"));
+        marketLifecycleService.closeIfExpired(market);
+
+        if (market.getStatus() != MarketStatus.OPEN) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Market is closed for trading");
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -120,14 +128,6 @@ public class TradeService {
 
         if (!outcome.getMarket().getId().equals(market.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Outcome does not belong to market");
-        }
-
-        if (market.getStatus() != MarketStatus.OPEN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Market is not open for trading");
-        }
-
-        if (market.getTradingCloseDate() != null && LocalDateTime.now().isAfter(market.getTradingCloseDate())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trading window has closed");
         }
 
         BigDecimal price = outcome.getCurrentPrice().setScale(PRICE_SCALE, RoundingMode.HALF_UP);

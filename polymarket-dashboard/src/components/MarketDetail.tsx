@@ -54,7 +54,7 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
   const selectedOutcomeId = outcomeName === 'YES' ? market.yesOutcomeId : market.noOutcomeId;
   const selectedPrice = outcomeName === 'YES' ? market.yesPrice : market.noPrice;
   const parsedQuantity = Number(quantity);
-  const estimatedCost = useMemo(() => {
+  const estimatedValue = useMemo(() => {
     if (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0) return 0;
     return parsedQuantity * selectedPrice;
   }, [parsedQuantity, selectedPrice]);
@@ -73,12 +73,37 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
     retry: false,
   });
 
-  const availableBalance = walletQuery.data?.balance ?? currentUser?.walletBalance;
+  const walletBalance = walletQuery.data ? toNumber(walletQuery.data.balance) : null;
   const ownedQuantity = toNumber(
     positionsQuery.data?.find(
       (position) => position.marketId === market.marketId && position.outcomeId === selectedOutcomeId
     )?.quantity
   );
+  const tradeValidationError = useMemo(() => {
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+      return 'Quantity must be a positive whole number';
+    }
+    if (tradeType === 'BUY'
+        && walletBalance !== null
+        && estimatedValue > walletBalance) {
+      return 'Insufficient balance';
+    }
+    if (tradeType === 'SELL'
+        && positionsQuery.data !== undefined
+        && parsedQuantity > ownedQuantity) {
+      return 'Insufficient position to sell';
+    }
+    return null;
+  }, [
+    estimatedValue,
+    ownedQuantity,
+    parsedQuantity,
+    positionsQuery.data,
+    tradeType,
+    walletBalance,
+  ]);
+  const isTradeDataLoading = walletQuery.isLoading
+    || (tradeType === 'SELL' && positionsQuery.isLoading);
 
   const recentTradesQuery = useQuery({
     queryKey: ['trades-by-market', market.marketId],
@@ -127,21 +152,23 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
         type: tradeType,
       });
     },
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       setQuantity('1');
       updateCurrentUser({ walletBalance: response.walletBalanceAfterTrade });
       refreshCurrentUser();
       toast.success(`${tradeType} ${outcomeName} trade completed.`);
-      queryClient.invalidateQueries({ queryKey: ['market', market.id] });
-      queryClient.invalidateQueries({ queryKey: ['trades-by-market', market.marketId] });
-      queryClient.invalidateQueries({ queryKey: ['market-price-history', market.marketId] });
-      queryClient.invalidateQueries({ queryKey: ['market-statistics', market.marketId] });
-      queryClient.invalidateQueries({ queryKey: ['markets'] });
-      queryClient.invalidateQueries({ queryKey: ['markets-full'] });
-      queryClient.invalidateQueries({ queryKey: ['wallet', currentUser?.userId] });
-      queryClient.invalidateQueries({ queryKey: ['wallet-transactions', currentUser?.userId] });
-      queryClient.invalidateQueries({ queryKey: ['positions', currentUser?.userId] });
-      queryClient.invalidateQueries({ queryKey: ['trade-history', currentUser?.userId] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['market', market.id] }),
+        queryClient.invalidateQueries({ queryKey: ['trades-by-market', market.marketId] }),
+        queryClient.invalidateQueries({ queryKey: ['market-price-history', market.marketId] }),
+        queryClient.invalidateQueries({ queryKey: ['market-statistics', market.marketId] }),
+        queryClient.invalidateQueries({ queryKey: ['markets'] }),
+        queryClient.invalidateQueries({ queryKey: ['markets-full'] }),
+        queryClient.invalidateQueries({ queryKey: ['wallet', currentUser?.userId] }),
+        queryClient.invalidateQueries({ queryKey: ['wallet-transactions', currentUser?.userId] }),
+        queryClient.invalidateQueries({ queryKey: ['positions', currentUser?.userId] }),
+        queryClient.invalidateQueries({ queryKey: ['trade-history', currentUser?.userId] }),
+      ]);
     },
     onError: (err) => {
       if (!axios.isAxiosError(err)) {
@@ -169,8 +196,8 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
       return;
     }
     if (tradeType === 'BUY'
-        && availableBalance !== undefined
-        && estimatedCost > toNumber(availableBalance)) {
+        && walletBalance !== null
+        && estimatedValue > walletBalance) {
       toast.error('Insufficient balance.');
       return;
     }
@@ -185,6 +212,13 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
 
   const recentTrades = recentTradesQuery.data ?? [];
   const showTradeTimes = recentTrades.some((trade) => Boolean(trade.createdAt));
+  const tradingDisabledMessage = market.status === 'CLOSED'
+    ? 'This market is closed. Trading is no longer available.'
+    : market.status === 'CANCELLED'
+      ? 'This market was cancelled. Trading is unavailable.'
+      : market.status === 'RESOLVED'
+        ? 'This market has been resolved. Trading is complete.'
+        : null;
 
   if (isLoading) {
     return <div className="text-center py-12">Loading market details...</div>;
@@ -327,7 +361,11 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
               Trade Ticket
             </h3>
 
-            {!currentUser ? (
+            {tradingDisabledMessage ? (
+              <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-950 dark:text-slate-400">
+                {tradingDisabledMessage}
+              </div>
+            ) : !currentUser ? (
               <div className="space-y-3">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   Login to buy or sell shares in this market.
@@ -404,13 +442,31 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-slate-400">Estimated value</span>
-                    <span className="font-medium text-slate-900 dark:text-white">${formatPrice(estimatedCost)}</span>
+                    <span className="font-medium text-slate-900 dark:text-white">${formatPrice(estimatedValue)}</span>
                   </div>
+                  {walletBalance !== null && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-400">Wallet balance</span>
+                      <span className="font-medium text-slate-900 dark:text-white">${formatPrice(walletBalance)}</span>
+                    </div>
+                  )}
+                  {tradeType === 'SELL' && positionsQuery.data !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-400">Owned position</span>
+                      <span className="font-medium text-slate-900 dark:text-white">{ownedQuantity}</span>
+                    </div>
+                  )}
                 </div>
+
+                {tradeValidationError && (
+                  <p className="text-sm font-medium text-red-600 dark:text-red-400" role="alert">
+                    {tradeValidationError}
+                  </p>
+                )}
 
                 <button
                   type="submit"
-                  disabled={tradeMutation.isPending}
+                  disabled={tradeMutation.isPending || isTradeDataLoading || Boolean(tradeValidationError)}
                   className="w-full px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium transition-colors"
                 >
                   {tradeMutation.isPending ? 'Submitting...' : `${tradeType} ${outcomeName}`}

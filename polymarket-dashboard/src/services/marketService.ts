@@ -47,3 +47,12 @@ export async function createMarket(request: CreateMarketRequestDto): Promise<Mar
 export async function resolveMarket(request: ResolutionRequestDto): Promise<void> {
   await apiClient.post('/api/markets/resolve', request, authRequestConfig());
 }
+
+export async function cancelMarket(marketId: number): Promise<MarketDetail> {
+  const { data } = await apiClient.post<BackendMarketResponseDto>(
+    `/api/markets/${marketId}/cancel`,
+    undefined,
+    authRequestConfig()
+  );
+  return mapMarketResponse(data);
+}

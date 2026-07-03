@@ -30,7 +30,7 @@ const emptyForm: MarketFormState = {
 };
 
 function formatMoney(value: number): string {
-  return `$${value.toFixed(4)}`;
+  return `${value.toFixed(4)} pts`;
 }
 
 function formatDateTime(value?: string): string {
@@ -85,11 +85,11 @@ export default function AdminPage() {
       return createMarket({
         adminUserId: currentUser.userId,
         title: form.title.trim(),
-        description: form.description.trim() || undefined,
+        description: form.description.trim(),
         category: form.category.trim(),
         tradingCloseDate: form.tradingCloseDate,
         resolutionDate: form.resolutionDate,
-        resolutionSource: form.resolutionSource.trim() || undefined,
+        resolutionSource: form.resolutionSource.trim(),
       });
     },
     onSuccess: async () => {
@@ -221,6 +221,7 @@ export default function AdminPage() {
               value={form.description}
               onChange={(event) => handleFormChange('description', event.target.value)}
               className="w-full min-h-24 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+              required
             />
           </div>
 
@@ -242,6 +243,7 @@ export default function AdminPage() {
               value={form.resolutionSource}
               onChange={(event) => handleFormChange('resolutionSource', event.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+              required
             />
           </div>
 

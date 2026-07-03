@@ -16,10 +16,10 @@ function toNumber(value: number | string | null | undefined): number {
 }
 
 function formatMoney(value: number | string): string {
-  return `$${toNumber(value).toLocaleString(undefined, {
+  return `${toNumber(value).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
-  })}`;
+  })} pts`;
 }
 
 export default function DashboardPage() {
@@ -71,7 +71,7 @@ export default function DashboardPage() {
     ...(markets.length > 0
       ? [{
           label: 'Avg. Price',
-          value: displayedAveragePrice.toFixed(2),
+          value: `${displayedAveragePrice.toFixed(2)} pts`,
           icon: <Zap className="w-6 h-6" />,
         }]
       : []),
@@ -137,7 +137,7 @@ export default function DashboardPage() {
                 </h3>
                 <div className="mt-2 flex items-baseline gap-2">
                   <span className="text-2xl font-bold text-green-600">
-                    ${market.yesPrice.toFixed(4)}
+                    {market.yesPrice.toFixed(4)} pts
                   </span>
                   <span className="text-xs text-slate-600 dark:text-slate-400">
                     YES
@@ -145,7 +145,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-1 flex items-baseline gap-2">
                   <span className="text-sm font-medium text-red-600">
-                    ${market.noPrice.toFixed(4)}
+                    {market.noPrice.toFixed(4)} pts
                   </span>
                   <span className="text-xs text-slate-600 dark:text-slate-400">
                     NO

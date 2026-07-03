@@ -27,6 +27,7 @@ public class Market {
     private String title;
 
     @Lob
+    @Column(nullable = false)
     private String description;
 
     @Column(nullable = false, length = 80)
@@ -38,7 +39,7 @@ public class Market {
     @Column(nullable = false)
     private LocalDateTime resolutionDate;
 
-    @Column(length = 255)
+    @Column(nullable = false, length = 255)
     private String resolutionSource;
 
     @Enumerated(EnumType.STRING)

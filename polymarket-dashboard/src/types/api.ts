@@ -84,11 +84,11 @@ export interface TradeResponseDto {
 export interface CreateMarketRequestDto {
   adminUserId: number;
   title: string;
-  description?: string;
+  description: string;
   category: string;
   tradingCloseDate: string;
   resolutionDate: string;
-  resolutionSource?: string;
+  resolutionSource: string;
 }
 
 export interface ResolutionRequestDto {

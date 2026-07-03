@@ -15,6 +15,7 @@ public class CreateMarketRequest {
     @NotBlank(message = "Title is required")
     private String title;
 
+    @NotBlank(message = "Description is required")
     private String description;
 
     @NotBlank(message = "Category is required")
@@ -26,6 +27,7 @@ public class CreateMarketRequest {
     @NotNull(message = "Resolution date is required")
     private LocalDateTime resolutionDate;
 
+    @NotBlank(message = "Resolution source is required")
     private String resolutionSource;
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Liquidity must be greater than 0")

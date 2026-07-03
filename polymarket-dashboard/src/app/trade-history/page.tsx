@@ -25,7 +25,7 @@ function formatQuantity(value: number | string): string {
 }
 
 function formatCurrency(value: number | string): string {
-  return `$${formatPrice(toNumber(value))}`;
+  return formatPrice(toNumber(value));
 }
 
 function formatDate(value?: string | null): string {

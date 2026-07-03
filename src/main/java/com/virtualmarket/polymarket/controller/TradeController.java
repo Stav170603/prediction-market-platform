@@ -6,6 +6,8 @@ import com.virtualmarket.polymarket.entity.User;
 import com.virtualmarket.polymarket.enums.UserRole;
 import com.virtualmarket.polymarket.service.TradeService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -26,7 +28,16 @@ public class TradeController {
     }
 
     @PostMapping
-    @Operation(summary = "Execute a BUY or SELL trade")
+    @Operation(
+            summary = "Execute a BUY or SELL trade",
+            description = "Executes a positive whole-share trade for the authenticated user using virtual points."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Trade executed"),
+            @ApiResponse(responseCode = "400", description = "Invalid quantity, closed market, insufficient balance, or insufficient position"),
+            @ApiResponse(responseCode = "401", description = "Authentication required"),
+            @ApiResponse(responseCode = "404", description = "Market, outcome, user, or wallet not found")
+    })
     public TradeResponse executeTrade(@RequestBody TradeRequest request, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         request.setUserId(currentUser.getId());

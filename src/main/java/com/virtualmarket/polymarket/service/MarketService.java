@@ -64,11 +64,11 @@ public class MarketService {
 
         Market market = new Market();
         market.setTitle(request.getTitle().trim());
-        market.setDescription(request.getDescription());
+        market.setDescription(request.getDescription().trim());
         market.setCategory(request.getCategory().trim());
         market.setTradingCloseDate(request.getTradingCloseDate());
         market.setResolutionDate(request.getResolutionDate());
-        market.setResolutionSource(request.getResolutionSource());
+        market.setResolutionSource(request.getResolutionSource().trim());
         market.setStatus(MarketStatus.OPEN);
         market.setLiquidity(request.getLiquidity() != null ? request.getLiquidity() : DEFAULT_LIQUIDITY);
 
@@ -87,6 +87,12 @@ public class MarketService {
         }
         if (request.getCategory() == null || request.getCategory().isBlank()) {
             throw new ResponseStatusException(BAD_REQUEST, "Category must not be blank");
+        }
+        if (request.getDescription() == null || request.getDescription().isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Description must not be blank");
+        }
+        if (request.getResolutionSource() == null || request.getResolutionSource().isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Resolution source must not be blank");
         }
         if (request.getTradingCloseDate() == null || !request.getTradingCloseDate().isAfter(LocalDateTime.now())) {
             throw new ResponseStatusException(BAD_REQUEST, "Trading close date must be in the future");

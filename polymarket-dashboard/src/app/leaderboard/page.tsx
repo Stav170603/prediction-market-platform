@@ -16,10 +16,10 @@ function toNumber(value: number | string | null | undefined): number {
 }
 
 function formatMoney(value: number | string): string {
-  return `$${toNumber(value).toLocaleString(undefined, {
+  return `${toNumber(value).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
-  })}`;
+  })} pts`;
 }
 
 function formatCount(value: number): string {

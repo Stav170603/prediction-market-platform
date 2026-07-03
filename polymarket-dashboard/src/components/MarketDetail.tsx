@@ -271,7 +271,7 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
                     YES
                   </span>
                   <span className="text-2xl font-bold text-green-600">
-                    ${formatPrice(market.yesPrice)}
+                    {formatPrice(market.yesPrice)}
                   </span>
                 </div>
                 <div className="mt-1 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
@@ -291,7 +291,7 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
                     NO
                   </span>
                   <span className="text-2xl font-bold text-red-600">
-                    ${formatPrice(market.noPrice)}
+                    {formatPrice(market.noPrice)}
                   </span>
                 </div>
                 <div className="mt-1 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
@@ -438,16 +438,16 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
                 <div className="rounded-lg bg-slate-50 dark:bg-slate-950 p-3 text-sm space-y-1">
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-slate-400">Price</span>
-                    <span className="font-medium text-slate-900 dark:text-white">${formatPrice(selectedPrice)}</span>
+                    <span className="font-medium text-slate-900 dark:text-white">{formatPrice(selectedPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-slate-400">Estimated value</span>
-                    <span className="font-medium text-slate-900 dark:text-white">${formatPrice(estimatedValue)}</span>
+                    <span className="font-medium text-slate-900 dark:text-white">{formatPrice(estimatedValue)}</span>
                   </div>
                   {walletBalance !== null && (
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-slate-400">Wallet balance</span>
-                      <span className="font-medium text-slate-900 dark:text-white">${formatPrice(walletBalance)}</span>
+                      <span className="font-medium text-slate-900 dark:text-white">{formatPrice(walletBalance)}</span>
                     </div>
                   )}
                   {tradeType === 'SELL' && positionsQuery.data !== undefined && (
@@ -587,10 +587,10 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
                         {toNumber(trade.quantity).toFixed(4)}
                       </td>
                       <td className="px-4 py-3 text-right font-medium">
-                        ${formatPrice(toNumber(trade.price))}
+                        {formatPrice(toNumber(trade.price))}
                       </td>
                       <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-400">
-                        ${formatPrice(toNumber(trade.totalCost))}
+                        {formatPrice(toNumber(trade.totalCost))}
                       </td>
                       <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-400">
                         {trade.username || `User #${trade.userId}`}
@@ -629,13 +629,13 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
                   <div>
                     <p className="text-xs text-slate-600 dark:text-slate-400">YES</p>
                     <p className="font-semibold text-green-600">
-                      ${formatPrice(relatedMarket.yesPrice)}
+                      {formatPrice(relatedMarket.yesPrice)}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-600 dark:text-slate-400">NO</p>
                     <p className="font-semibold text-red-600">
-                      ${formatPrice(relatedMarket.noPrice)}
+                      {formatPrice(relatedMarket.noPrice)}
                     </p>
                   </div>
                 </div>

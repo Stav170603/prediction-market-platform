@@ -59,7 +59,9 @@ class MarketServiceTest {
         CreateMarketRequest request = new CreateMarketRequest();
         request.setAdminUserId(1L);
         request.setTitle("  Will the test pass?  ");
+        request.setDescription("  A testable market description.  ");
         request.setCategory("  Technology  ");
+        request.setResolutionSource("  Official test results  ");
         request.setTradingCloseDate(LocalDateTime.now().plusDays(1));
         request.setResolutionDate(LocalDateTime.now().plusDays(2));
         request.setLiquidity(new BigDecimal("250.0000"));
@@ -69,6 +71,8 @@ class MarketServiceTest {
         assertThat(response.getMarketId()).isEqualTo(50L);
         assertThat(response.getTitle()).isEqualTo("Will the test pass?");
         assertThat(response.getCategory()).isEqualTo("Technology");
+        assertThat(response.getDescription()).isEqualTo("A testable market description.");
+        assertThat(response.getResolutionSource()).isEqualTo("Official test results");
         assertThat(response.getStatus()).isEqualTo(MarketStatus.OPEN);
         assertThat(response.getYesPrice()).isEqualByComparingTo("0.5000");
         assertThat(response.getNoPrice()).isEqualByComparingTo("0.5000");
@@ -100,6 +104,25 @@ class MarketServiceTest {
         assertThat(result)
                 .extracting(PriceHistoryResponse::getTimestamp)
                 .isSorted();
+    }
+
+    @Test
+    void descriptionAndResolutionSourceAreRequired() {
+        CreateMarketRequest request = new CreateMarketRequest();
+        request.setAdminUserId(1L);
+        request.setTitle("Will required fields be enforced?");
+        request.setCategory("Testing");
+        request.setTradingCloseDate(LocalDateTime.now().plusDays(1));
+        request.setResolutionDate(LocalDateTime.now().plusDays(2));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> marketService.createMarket(request))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .hasMessageContaining("Description must not be blank");
+
+        request.setDescription("Required description");
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> marketService.createMarket(request))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .hasMessageContaining("Resolution source must not be blank");
     }
 
     private PriceHistory history(Market market, String yes, String no, LocalDateTime timestamp) {

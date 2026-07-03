@@ -6,27 +6,27 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number): string {
-  return price.toFixed(4);
+  return `${price.toFixed(4)} pts`;
 }
 
 export function formatVolume(volume: number): string {
   if (volume >= 1000000) {
-    return `$${(volume / 1000000).toFixed(1)}M`;
+    return `${(volume / 1000000).toFixed(1)}M pts`;
   }
   if (volume >= 1000) {
-    return `$${(volume / 1000).toFixed(1)}K`;
+    return `${(volume / 1000).toFixed(1)}K pts`;
   }
-  return `$${volume.toFixed(0)}`;
+  return `${volume.toFixed(0)} pts`;
 }
 
 export function formatLiquidity(liquidity: number): string {
   if (liquidity >= 1000000) {
-    return `$${(liquidity / 1000000).toFixed(1)}M`;
+    return `${(liquidity / 1000000).toFixed(1)}M pts`;
   }
   if (liquidity >= 1000) {
-    return `$${(liquidity / 1000).toFixed(1)}K`;
+    return `${(liquidity / 1000).toFixed(1)}K pts`;
   }
-  return `$${liquidity.toFixed(0)}`;
+  return `${liquidity.toFixed(0)} pts`;
 }
 
 export function getCountdownText(endDate: string | undefined): string {

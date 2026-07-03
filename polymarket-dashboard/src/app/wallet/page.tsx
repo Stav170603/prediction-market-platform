@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CreditCard, Receipt } from 'lucide-react';
 import { getMyWallet, getMyWalletTransactions } from '@/services/walletService';
 import { useAuth } from '@/contexts/AuthContext';
-import { LoadingSpinner, ErrorBoundary } from '@/components/Loading';
+import { LoadingSpinner, ErrorBoundary } from '@/components/ui/Loading';
 
 function toNumber(value: number | string | null | undefined): number {
   if (value === null || value === undefined) return 0;

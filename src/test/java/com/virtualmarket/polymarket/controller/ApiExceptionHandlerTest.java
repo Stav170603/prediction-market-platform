@@ -1,5 +1,6 @@
 package com.virtualmarket.polymarket.controller;
 
+import com.virtualmarket.polymarket.exception.ApiExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

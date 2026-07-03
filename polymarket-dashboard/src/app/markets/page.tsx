@@ -2,8 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchMarkets } from '@/lib/api';
-import { MarketsList } from '@/components/MarketsList';
-import { LoadingSpinner, ErrorBoundary } from '@/components/Loading';
+import { MarketsList } from '@/components/markets/MarketsList';
+import { LoadingSpinner, ErrorBoundary } from '@/components/ui/Loading';
 
 export default function MarketsPage() {
   const { data, isLoading, error } = useQuery({

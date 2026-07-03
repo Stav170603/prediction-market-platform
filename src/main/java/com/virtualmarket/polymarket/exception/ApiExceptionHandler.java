@@ -1,4 +1,4 @@
-package com.virtualmarket.polymarket.controller;
+package com.virtualmarket.polymarket.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

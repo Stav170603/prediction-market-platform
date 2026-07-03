@@ -8,7 +8,7 @@ import { Shield, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { cancelMarket, createMarket, getMarkets, resolveMarket } from '@/services/marketService';
 import { Market, TradeOutcomeName } from '@/types/api';
-import { ErrorBoundary, LoadingSpinner } from '@/components/Loading';
+import { ErrorBoundary, LoadingSpinner } from '@/components/ui/Loading';
 import { useAuth } from '@/contexts/AuthContext';
 
 type MarketFormState = {

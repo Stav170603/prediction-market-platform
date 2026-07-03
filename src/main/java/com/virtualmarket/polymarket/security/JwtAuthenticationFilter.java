@@ -2,7 +2,6 @@ package com.virtualmarket.polymarket.security;
 
 import com.virtualmarket.polymarket.entity.User;
 import com.virtualmarket.polymarket.repository.UserRepository;
-import com.virtualmarket.polymarket.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

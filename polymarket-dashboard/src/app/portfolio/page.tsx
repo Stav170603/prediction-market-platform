@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Briefcase } from 'lucide-react';
 import { getMyPositions } from '@/services/positionService';
 import { useAuth } from '@/contexts/AuthContext';
-import { LoadingSpinner, ErrorBoundary } from '@/components/Loading';
+import { LoadingSpinner, ErrorBoundary } from '@/components/ui/Loading';
 
 function toNumber(value: number | string | null | undefined): number {
   if (value === null || value === undefined) return 0;

@@ -2,9 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchMarkets } from '@/lib/api';
-import { StatsCards } from '@/components/StatsCards';
-import { MarketsList } from '@/components/MarketsList';
-import { LoadingSpinner, ErrorBoundary } from '@/components/Loading';
+import { StatsCards } from '@/components/dashboard/StatsCards';
+import { MarketsList } from '@/components/markets/MarketsList';
+import { LoadingSpinner, ErrorBoundary } from '@/components/ui/Loading';
 import { getDashboardSummary } from '@/services/dashboardService';
 import { Activity, BarChart3, Briefcase, Target, TrendingUp, Wallet, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';

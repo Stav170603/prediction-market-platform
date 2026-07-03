@@ -7,6 +7,7 @@ import com.virtualmarket.polymarket.entity.User;
 import com.virtualmarket.polymarket.entity.Wallet;
 import com.virtualmarket.polymarket.enums.UserRole;
 import com.virtualmarket.polymarket.repository.UserRepository;
+import com.virtualmarket.polymarket.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

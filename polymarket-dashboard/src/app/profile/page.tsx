@@ -8,7 +8,7 @@ import { getMyPositions } from '@/services/positionService';
 import { getMyTrades } from '@/services/tradeService';
 import { getMyWallet } from '@/services/walletService';
 import { useAuth } from '@/contexts/AuthContext';
-import { ErrorBoundary, LoadingSpinner } from '@/components/Loading';
+import { ErrorBoundary, LoadingSpinner } from '@/components/ui/Loading';
 
 function toNumber(value: number | string | null | undefined): number {
   if (value === null || value === undefined) return 0;

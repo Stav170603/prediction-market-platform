@@ -15,7 +15,7 @@ import { executeTrade, getTradesByMarket } from '@/services/tradeService';
 import { getMyPositions } from '@/services/positionService';
 import { getMyWallet } from '@/services/walletService';
 import { TradeOutcomeName, TradeResponseDto, TradeType } from '@/types/api';
-import { EmptyState, LoadingSpinner } from './Loading';
+import { EmptyState, LoadingSpinner } from '@/components/ui/Loading';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MarketDetailProps {

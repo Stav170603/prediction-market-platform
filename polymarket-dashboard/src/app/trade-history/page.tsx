@@ -8,7 +8,7 @@ import { getMarketById } from '@/services/marketService';
 import { getMyTrades } from '@/services/tradeService';
 import { MarketDetail, TradeResponseDto } from '@/types/api';
 import { formatPrice } from '@/lib/utils';
-import { EmptyState, ErrorBoundary, LoadingSpinner } from '@/components/Loading';
+import { EmptyState, ErrorBoundary, LoadingSpinner } from '@/components/ui/Loading';
 import { useAuth } from '@/contexts/AuthContext';
 
 function toNumber(value: number | string | null | undefined): number {

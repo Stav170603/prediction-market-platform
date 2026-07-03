@@ -2,8 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchMarketDetail } from '@/lib/api';
-import { MarketDetailComponent } from '@/components/MarketDetail';
-import { LoadingSpinner, ErrorBoundary } from '@/components/Loading';
+import { MarketDetailComponent } from '@/components/markets/MarketDetail';
+import { LoadingSpinner, ErrorBoundary } from '@/components/ui/Loading';
 
 interface MarketPageProps {
   params: {

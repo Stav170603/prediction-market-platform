@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Crown, Medal, Trophy, User } from 'lucide-react';
 import { getLeaderboard } from '@/services/leaderboardService';
 import { LeaderboardResponseDto } from '@/types/api';
-import { EmptyState, ErrorBoundary, LoadingSpinner } from '@/components/Loading';
+import { EmptyState, ErrorBoundary, LoadingSpinner } from '@/components/ui/Loading';
 import { useAuth } from '@/contexts/AuthContext';
 
 function toNumber(value: number | string | null | undefined): number {

@@ -1,4 +1,4 @@
-package com.virtualmarket.polymarket.service;
+package com.virtualmarket.polymarket.security;
 
 import com.virtualmarket.polymarket.entity.User;
 import io.jsonwebtoken.Claims;

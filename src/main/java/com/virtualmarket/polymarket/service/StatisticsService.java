@@ -76,6 +76,7 @@ public class StatisticsService {
         List<Position> openPositions = positionRepository.findByUser(user).stream()
                 .filter(position -> position.getQuantity() != null)
                 .filter(position -> position.getQuantity().compareTo(BigDecimal.ZERO) > 0)
+                .filter(position -> position.getMarket().getStatus() == MarketStatus.OPEN)
                 .toList();
 
         BigDecimal positionsValue = openPositions.stream()

@@ -5,6 +5,7 @@ import com.virtualmarket.polymarket.entity.Market;
 import com.virtualmarket.polymarket.entity.MarketOutcome;
 import com.virtualmarket.polymarket.entity.Position;
 import com.virtualmarket.polymarket.entity.User;
+import com.virtualmarket.polymarket.enums.MarketStatus;
 import com.virtualmarket.polymarket.repository.MarketOutcomeRepository;
 import com.virtualmarket.polymarket.repository.MarketRepository;
 import com.virtualmarket.polymarket.repository.PositionRepository;
@@ -45,6 +46,9 @@ public class PositionService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
 
         return positionRepository.findByUser(user).stream()
+                .filter(position -> position.getQuantity() != null)
+                .filter(position -> position.getQuantity().compareTo(BigDecimal.ZERO) > 0)
+                .filter(position -> position.getMarket().getStatus() == MarketStatus.OPEN)
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -71,6 +75,7 @@ public class PositionService {
         response.setUserId(position.getUser().getId());
         response.setMarketId(position.getMarket().getId());
         response.setMarketTitle(position.getMarket().getTitle());
+        response.setMarketStatus(position.getMarket().getStatus());
         response.setOutcomeId(outcome.getId());
         response.setOutcomeName(outcome.getName());
         response.setQuantity(quantity);

@@ -28,7 +28,10 @@ public class PositionController {
     }
 
     @GetMapping("/user/{userId}")
-    @Operation(summary = "Get positions for a user")
+    @Operation(
+            summary = "Get active positions for a user",
+            description = "Returns positive positions in OPEN markets only."
+    )
     public List<PositionResponse> getUserPositions(@PathVariable Long userId, Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         if (!currentUser.getId().equals(userId) && currentUser.getRole() != UserRole.ADMIN) {
@@ -39,14 +42,21 @@ public class PositionController {
     }
 
     @GetMapping("/me")
-    @Operation(summary = "Get the authenticated user's portfolio positions", tags = {"Positions", "Profile"})
+    @Operation(
+            summary = "Get the authenticated user's active portfolio positions",
+            description = "Returns positive positions in OPEN markets only.",
+            tags = {"Positions", "Profile"}
+    )
     public List<PositionResponse> getMyPositions(Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
         return positionService.getUserPositions(currentUser.getId());
     }
 
     @GetMapping("/market/{marketId}")
-    @Operation(summary = "Get all positions in a market")
+    @Operation(
+            summary = "Get all positions in a market",
+            description = "Returns market positions regardless of lifecycle status for administrative or historical use."
+    )
     public List<PositionResponse> getMarketPositions(@PathVariable Long marketId) {
         return positionService.getMarketPositions(marketId);
     }

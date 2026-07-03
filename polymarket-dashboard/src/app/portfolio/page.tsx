@@ -45,7 +45,9 @@ export default function PortfolioPage() {
     return <ErrorBoundary error={positionsQuery.error as Error} />;
   }
 
-  const positions = positionsQuery.data ?? [];
+  const positions = (positionsQuery.data ?? []).filter(
+    (position) => position.marketStatus === 'OPEN' && toNumber(position.quantity) > 0
+  );
   const totalValue = positions.reduce((sum, position) => sum + toNumber(position.currentValue), 0);
   const totalPnL = positions.reduce((sum, position) => sum + toNumber(position.unrealizedPnL), 0);
 

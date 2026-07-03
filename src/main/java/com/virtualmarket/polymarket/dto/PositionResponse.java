@@ -1,5 +1,7 @@
 package com.virtualmarket.polymarket.dto;
 
+import com.virtualmarket.polymarket.enums.MarketStatus;
+
 import java.math.BigDecimal;
 
 public class PositionResponse {
@@ -8,6 +10,7 @@ public class PositionResponse {
     private Long userId;
     private Long marketId;
     private String marketTitle;
+    private MarketStatus marketStatus;
     private Long outcomeId;
     private String outcomeName;
     private BigDecimal quantity;
@@ -48,6 +51,14 @@ public class PositionResponse {
 
     public void setMarketTitle(String marketTitle) {
         this.marketTitle = marketTitle;
+    }
+
+    public MarketStatus getMarketStatus() {
+        return marketStatus;
+    }
+
+    public void setMarketStatus(MarketStatus marketStatus) {
+        this.marketStatus = marketStatus;
     }
 
     public Long getOutcomeId() {

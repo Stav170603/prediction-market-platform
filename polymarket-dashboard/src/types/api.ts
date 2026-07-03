@@ -49,6 +49,7 @@ export interface PositionResponseDto {
   userId: number;
   marketId: number;
   marketTitle: string;
+  marketStatus: BackendMarketStatus;
   outcomeId: number;
   outcomeName: string;
   quantity: number | string;

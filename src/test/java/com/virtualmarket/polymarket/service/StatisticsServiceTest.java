@@ -64,7 +64,9 @@ class StatisticsServiceTest {
         User user = new User();
         user.setId(9L);
         Market firstMarket = market(1L, "100.0000");
+        firstMarket.setStatus(MarketStatus.OPEN);
         Market secondMarket = market(2L, "100.0000");
+        secondMarket.setStatus(MarketStatus.RESOLVED);
         MarketOutcome firstYes = outcome(firstMarket, "0.6000");
         MarketOutcome secondYes = outcome(secondMarket, "0.4000");
 

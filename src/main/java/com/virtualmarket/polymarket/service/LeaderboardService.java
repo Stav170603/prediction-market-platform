@@ -3,6 +3,7 @@ package com.virtualmarket.polymarket.service;
 import com.virtualmarket.polymarket.dto.LeaderboardResponse;
 import com.virtualmarket.polymarket.entity.Position;
 import com.virtualmarket.polymarket.entity.User;
+import com.virtualmarket.polymarket.enums.MarketStatus;
 import com.virtualmarket.polymarket.repository.PositionRepository;
 import com.virtualmarket.polymarket.repository.TradeRepository;
 import com.virtualmarket.polymarket.repository.UserRepository;
@@ -71,6 +72,7 @@ public class LeaderboardService {
         List<Position> openPositions = positions.stream()
                 .filter(position -> position.getQuantity() != null)
                 .filter(position -> position.getQuantity().compareTo(BigDecimal.ZERO) > 0)
+                .filter(position -> position.getMarket().getStatus() == MarketStatus.OPEN)
                 .toList();
 
         BigDecimal openPositionValue = openPositions.stream()

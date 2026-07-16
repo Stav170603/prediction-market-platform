@@ -505,8 +505,7 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
               </h3>
               <div className="h-96 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
                 <EmptyState
-                  title="No price history yet"
-                  description="Price history will appear after trades are executed."
+                  title="No price history available yet."
                 />
               </div>
             </div>

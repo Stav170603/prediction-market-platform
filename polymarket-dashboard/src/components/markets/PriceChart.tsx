@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -17,12 +18,29 @@ interface PriceChartProps {
 }
 
 export function PriceChart({ data }: PriceChartProps) {
-  const chartData = data.map((item) => ({
-    timestamp: item.timestamp,
-    yesPrice: Number(item.yesPrice),
-    noPrice: Number(item.noPrice),
-    time: new Date(item.timestamp).toLocaleTimeString(),
-  }));
+  const chartData = useMemo(
+    () => data
+      .map((item, originalIndex) => ({
+        timestamp: new Date(item.timestamp).getTime(),
+        yesPrice: Number(item.yesPrice),
+        noPrice: Number(item.noPrice),
+        originalIndex,
+      }))
+      .sort((left, right) => (
+        left.timestamp - right.timestamp || left.originalIndex - right.originalIndex
+      )),
+    [data]
+  );
+
+  const formatTimestamp = (timestamp: number) => new Date(timestamp).toLocaleString();
+
+  if (chartData.length === 0) {
+    return (
+      <div className="flex h-96 w-full items-center justify-center rounded-lg border border-slate-200 bg-white p-4 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+        No price history available yet.
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-96 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
@@ -33,7 +51,11 @@ export function PriceChart({ data }: PriceChartProps) {
             stroke="rgba(100, 116, 139, 0.2)"
           />
           <XAxis
-            dataKey="time"
+            dataKey="timestamp"
+            type="number"
+            scale="time"
+            domain={['dataMin', 'dataMax']}
+            tickFormatter={(timestamp) => new Date(timestamp).toLocaleTimeString()}
             stroke="rgb(100, 116, 139)"
             tick={{ fontSize: 12 }}
           />
@@ -49,13 +71,15 @@ export function PriceChart({ data }: PriceChartProps) {
               borderRadius: '8px',
             }}
             labelStyle={{ color: '#fff' }}
+            labelFormatter={(timestamp) => `Time: ${formatTimestamp(Number(timestamp))}`}
+            formatter={(value) => Number(value).toFixed(4)}
           />
           <Legend />
           <Line
             type="monotone"
             dataKey="yesPrice"
             stroke="#10b981"
-            name="Yes Price"
+            name="YES price"
             isAnimationActive={false}
             dot={false}
           />
@@ -63,7 +87,7 @@ export function PriceChart({ data }: PriceChartProps) {
             type="monotone"
             dataKey="noPrice"
             stroke="#ef4444"
-            name="No Price"
+            name="NO price"
             isAnimationActive={false}
             dot={false}
           />

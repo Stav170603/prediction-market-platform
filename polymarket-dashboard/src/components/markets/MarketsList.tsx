@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { ChevronUp, ChevronDown, Loader2 } from 'lucide-react';
 import {
   formatPrice,
   formatVolume,
@@ -21,7 +21,9 @@ type SortKey = 'volume' | 'price' | 'category';
 type FilterState = 'all' | 'active' | 'closed' | 'resolved';
 
 export function MarketsList({ markets, isLoading = false }: MarketsListProps) {
+  const router = useRouter();
   const [displayMarkets, setDisplayMarkets] = useState(markets);
+  const [navigatingMarketId, setNavigatingMarketId] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('volume');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterState, setFilterState] = useState<FilterState>('all');
@@ -75,12 +77,27 @@ export function MarketsList({ markets, isLoading = false }: MarketsListProps) {
     setCurrentPage(1);
   }, [markets, sortKey, sortOrder, filterState, searchTerm]);
 
-  const paginatedMarkets = displayMarkets.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+  const paginatedMarkets = useMemo(
+    () => displayMarkets.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    ),
+    [currentPage, displayMarkets]
   );
 
   const totalPages = Math.ceil(displayMarkets.length / itemsPerPage);
+
+  useEffect(() => {
+    paginatedMarkets.forEach((market) => {
+      router.prefetch(`/market/${market.id}`);
+    });
+  }, [paginatedMarkets, router]);
+
+  const handleViewMarket = (marketId: string) => {
+    if (navigatingMarketId !== null) return;
+    setNavigatingMarketId(marketId);
+    router.push(`/market/${marketId}`);
+  };
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -218,12 +235,16 @@ export function MarketsList({ markets, isLoading = false }: MarketsListProps) {
                     {getCountdownText(market.endDate)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <Link
-                      href={`/market/${market.id}`}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                    <button
+                      type="button"
+                      onClick={() => handleViewMarket(market.id)}
+                      disabled={navigatingMarketId !== null}
+                      aria-label={navigatingMarketId === market.id ? `Opening ${market.title}` : `View ${market.title}`}
+                      className="inline-flex items-center justify-center gap-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      View
-                    </Link>
+                      {navigatingMarketId === market.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      {navigatingMarketId === market.id ? 'Opening...' : 'View'}
+                    </button>
                   </td>
                 </tr>
               ))

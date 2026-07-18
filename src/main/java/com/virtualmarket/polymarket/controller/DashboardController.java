@@ -1,8 +1,10 @@
 package com.virtualmarket.polymarket.controller;
 
 import com.virtualmarket.polymarket.dto.DashboardSummaryResponse;
+import com.virtualmarket.polymarket.dto.AdminDashboardResponse;
 import com.virtualmarket.polymarket.entity.User;
 import com.virtualmarket.polymarket.service.StatisticsService;
+import com.virtualmarket.polymarket.service.AdminDashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.Authentication;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardController {
 
     private final StatisticsService statisticsService;
+    private final AdminDashboardService adminDashboardService;
 
-    public DashboardController(StatisticsService statisticsService) {
+    public DashboardController(StatisticsService statisticsService, AdminDashboardService adminDashboardService) {
         this.statisticsService = statisticsService;
+        this.adminDashboardService = adminDashboardService;
     }
 
     @GetMapping("/summary")
@@ -28,5 +32,11 @@ public class DashboardController {
                 ? (User) authentication.getPrincipal()
                 : null;
         return statisticsService.getDashboardSummary(user);
+    }
+
+    @GetMapping("/admin")
+    @Operation(summary = "Get the admin operations dashboard")
+    public AdminDashboardResponse getAdminDashboard() {
+        return adminDashboardService.getDashboard();
     }
 }

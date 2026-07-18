@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 public interface MarketRepository extends JpaRepository<Market, Long> {
     List<Market> findByStatus(MarketStatus status);
@@ -18,4 +19,7 @@ public interface MarketRepository extends JpaRepository<Market, Long> {
     List<Market> findByCategory(String category);
 
     long countByStatus(MarketStatus status);
+
+    List<Market> findByStatusAndResolutionDateLessThanEqualOrderByResolutionDateAsc(
+            MarketStatus status, LocalDateTime resolutionDate);
 }

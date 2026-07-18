@@ -37,6 +37,8 @@ export function useSseEvents() {
     const invalidateMarketQueries = (marketId?: number) => {
       queryClient.invalidateQueries({ queryKey: ['markets'] });
       queryClient.invalidateQueries({ queryKey: ['markets-full'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-markets'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] });
 
       if (marketId !== undefined) {
         queryClient.invalidateQueries({ queryKey: ['market', marketId] });

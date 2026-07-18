@@ -210,7 +210,16 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
     tradeMutation.mutate();
   };
 
-  const recentTrades = recentTradesQuery.data ?? [];
+  const recentTrades = useMemo(() => {
+    return [...(recentTradesQuery.data ?? [])].sort((first, second) => {
+      const firstTime = first.createdAt ? new Date(first.createdAt).getTime() : Number.NEGATIVE_INFINITY;
+      const secondTime = second.createdAt ? new Date(second.createdAt).getTime() : Number.NEGATIVE_INFINITY;
+      const normalizedFirstTime = Number.isNaN(firstTime) ? Number.NEGATIVE_INFINITY : firstTime;
+      const normalizedSecondTime = Number.isNaN(secondTime) ? Number.NEGATIVE_INFINITY : secondTime;
+
+      return normalizedSecondTime - normalizedFirstTime || second.tradeId - first.tradeId;
+    });
+  }, [recentTradesQuery.data]);
   const showTradeTimes = recentTrades.some((trade) => Boolean(trade.createdAt));
   const tradingDisabledMessage = market.status === 'CLOSED'
     ? 'This market is closed. Trading is no longer available.'

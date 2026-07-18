@@ -10,6 +10,8 @@ import { cancelMarket, createMarket, getMarkets, resolveMarket } from '@/service
 import { Market, TradeOutcomeName } from '@/types/api';
 import { ErrorBoundary, LoadingSpinner } from '@/components/ui/Loading';
 import { useAuth } from '@/contexts/AuthContext';
+import { getAdminDashboard } from '@/services/dashboardService';
+import { AdminOverview } from '@/components/dashboard/AdminOverview';
 
 type MarketFormState = {
   title: string;
@@ -78,6 +80,12 @@ export default function AdminPage() {
     enabled: isAuthInitialized && currentUser?.role === 'ADMIN',
   });
 
+  const dashboardQuery = useQuery({
+    queryKey: ['admin-dashboard'],
+    queryFn: getAdminDashboard,
+    enabled: isAuthInitialized && currentUser?.role === 'ADMIN',
+  });
+
   const createMarketMutation = useMutation({
     mutationFn: () => {
       if (!currentUser) throw new Error('Admin session is required.');
@@ -96,6 +104,7 @@ export default function AdminPage() {
       setForm(emptyForm);
       toast.success('Market created successfully.');
       await queryClient.invalidateQueries({ queryKey: ['admin-markets'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] });
     },
     onError: (error) => {
       if (!axios.isAxiosError(error)) {
@@ -120,6 +129,7 @@ export default function AdminPage() {
     onSuccess: async () => {
       toast.success('Market resolved successfully.');
       await queryClient.invalidateQueries({ queryKey: ['admin-markets'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] });
     },
     onError: (error) => {
       if (!axios.isAxiosError(error)) {
@@ -133,6 +143,7 @@ export default function AdminPage() {
     onSuccess: async () => {
       toast.success('Market cancelled successfully.');
       await queryClient.invalidateQueries({ queryKey: ['admin-markets'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] });
     },
     onError: (error) => {
       if (!axios.isAxiosError(error)) {
@@ -181,8 +192,8 @@ export default function AdminPage() {
     );
   }
 
-  if (marketsQuery.error) {
-    return <ErrorBoundary error={marketsQuery.error as Error} message="Unable to load markets" />;
+  if (marketsQuery.error || dashboardQuery.error) {
+    return <ErrorBoundary error={(marketsQuery.error || dashboardQuery.error) as Error} message="Unable to load the admin dashboard" />;
   }
 
   return (
@@ -196,6 +207,17 @@ export default function AdminPage() {
           <p className="mt-1 text-slate-600 dark:text-slate-400">Create and resolve prediction markets</p>
         </div>
       </div>
+
+      {marketsQuery.isLoading || dashboardQuery.isLoading ? (
+        <LoadingSpinner />
+      ) : dashboardQuery.data ? (
+        <AdminOverview
+          data={dashboardQuery.data}
+          markets={markets}
+          resolving={resolveMarketMutation.isPending}
+          onResolve={handleResolve}
+        />
+      ) : null}
 
       <section className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6">
         <div className="flex items-center gap-2 mb-5">

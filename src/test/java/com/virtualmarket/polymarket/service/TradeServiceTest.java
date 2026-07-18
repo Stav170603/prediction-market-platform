@@ -262,6 +262,33 @@ class TradeServiceTest {
         verify(tradeRepository, never()).save(any());
     }
 
+    @Test
+    void sellingInCancelledMarketIsRejected() {
+        market.setStatus(MarketStatus.CANCELLED);
+        when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
+
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.SELL, "1")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Market is closed for trading");
+
+        verify(tradeRepository, never()).save(any());
+    }
+
+    @Test
+    void buyingAndSellingInResolvedMarketAreRejected() {
+        market.setStatus(MarketStatus.RESOLVED);
+        when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
+
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.BUY, "1")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Market is closed for trading");
+        assertThatThrownBy(() -> tradeService.executeTrade(request(TradeType.SELL, "1")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Market is closed for trading");
+
+        verify(tradeRepository, never()).save(any());
+    }
+
     private void stubRequiredEntities() {
         when(marketRepository.findById(10L)).thenReturn(Optional.of(market));
         when(userRepository.findById(20L)).thenReturn(Optional.of(user));

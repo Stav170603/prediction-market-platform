@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/markets", "/api/markets/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/markets/*/history", "/api/markets/*/statistics").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/dashboard/summary").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dashboard/admin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/events/stream").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/trades/by-market/*").permitAll()
                         .requestMatchers(

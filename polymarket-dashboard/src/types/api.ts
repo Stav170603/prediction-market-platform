@@ -189,6 +189,31 @@ export interface DashboardSummaryDto {
   openPositions: number;
 }
 
+export interface AdminDashboardDto {
+  summary: {
+    totalMarkets: number; openMarkets: number; closedMarkets: number;
+    waitingForResolution: number; resolvedMarkets: number; cancelledMarkets: number;
+    totalUsers: number; activeUsersLast24Hours: number; totalTrades: number;
+    totalTradingVolume: number | string;
+  };
+  marketsRequiringAttention: Array<{
+    marketId: number; title: string; category: string;
+    tradingCloseDate: string; resolutionDate: string;
+  }>;
+  recentActivity: Array<{
+    tradeId: number; username: string; marketId: number; marketTitle: string;
+    type: TradeType; outcome: string; quantity: number | string;
+    totalValue: number | string; createdAt: string;
+  }>;
+  sharpPriceMovements: Array<{
+    marketId: number; marketTitle: string; previousYesPrice: number | string;
+    currentYesPrice: number | string; absoluteChange: number | string;
+    windowStart: string; windowEnd: string;
+  }>;
+  sharpMovementThreshold: number | string;
+  sharpMovementWindowHours: number;
+}
+
 export interface MarketsResult {
   markets: Market[];
   total: number;

@@ -42,16 +42,22 @@ class PositionServiceTest {
         User user = new User();
         user.setId(7L);
         Position openPosition = position(user, 10L, MarketStatus.OPEN, "5");
-        Position resolvedPosition = position(user, 11L, MarketStatus.RESOLVED, "8");
         when(userRepository.findById(7L)).thenReturn(Optional.of(user));
-        when(positionRepository.findByUser(user)).thenReturn(List.of(openPosition, resolvedPosition));
+        when(positionRepository.findOpenPositionsByUserId(7L, MarketStatus.OPEN, BigDecimal.ZERO))
+                .thenReturn(List.of(openPosition));
 
         List<PositionResponse> result = positionService.getUserPositions(7L);
 
-        assertThat(result)
-                .extracting(PositionResponse::getMarketId)
-                .containsExactly(10L);
-        assertThat(result.getFirst().getMarketStatus()).isEqualTo(MarketStatus.OPEN);
+        assertThat(result).singleElement().satisfies(position -> {
+            assertThat(position.getPositionId()).isEqualTo(1000L);
+            assertThat(position.getUserId()).isEqualTo(7L);
+            assertThat(position.getMarketId()).isEqualTo(10L);
+            assertThat(position.getMarketTitle()).isEqualTo("Market 10");
+            assertThat(position.getMarketStatus()).isEqualTo(MarketStatus.OPEN);
+            assertThat(position.getOutcomeId()).isEqualTo(100L);
+            assertThat(position.getOutcomeName()).isEqualTo("YES");
+            assertThat(position.getQuantity()).isEqualByComparingTo("5");
+        });
     }
 
     private Position position(User user, Long marketId, MarketStatus status, String quantity) {

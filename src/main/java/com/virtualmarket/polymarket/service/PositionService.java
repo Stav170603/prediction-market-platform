@@ -45,10 +45,11 @@ public class PositionService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
 
-        return positionRepository.findByUser(user).stream()
-                .filter(position -> position.getQuantity() != null)
-                .filter(position -> position.getQuantity().compareTo(BigDecimal.ZERO) > 0)
-                .filter(position -> position.getMarket().getStatus() == MarketStatus.OPEN)
+        return positionRepository.findOpenPositionsByUserId(
+                        user.getId(),
+                        MarketStatus.OPEN,
+                        BigDecimal.ZERO
+                ).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

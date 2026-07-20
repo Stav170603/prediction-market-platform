@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Briefcase } from 'lucide-react';
-import { getMyPositions } from '@/services/positionService';
+import { getMyPositions, positionQueryKey } from '@/services/positionService';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner, ErrorBoundary } from '@/components/ui/Loading';
 
@@ -33,7 +33,7 @@ export default function PortfolioPage() {
   }, [currentUser, isAuthInitialized, router]);
 
   const positionsQuery = useQuery({
-    queryKey: ['positions', currentUser?.userId],
+    queryKey: positionQueryKey(currentUser?.userId),
     queryFn: getMyPositions,
     enabled: isAuthInitialized && Boolean(currentUser?.userId),
     retry: false,

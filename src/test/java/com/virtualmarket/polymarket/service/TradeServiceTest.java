@@ -120,6 +120,13 @@ class TradeServiceTest {
         assertThat(yesOutcome.getCurrentPrice()).isEqualByComparingTo("0.5238");
         assertThat(noOutcome.getCurrentPrice()).isEqualByComparingTo("0.4762");
 
+        ArgumentCaptor<Position> positionCaptor = ArgumentCaptor.forClass(Position.class);
+        verify(positionRepository).save(positionCaptor.capture());
+        assertThat(positionCaptor.getValue().getUser()).isSameAs(user);
+        assertThat(positionCaptor.getValue().getMarket()).isSameAs(market);
+        assertThat(positionCaptor.getValue().getOutcome()).isSameAs(yesOutcome);
+        assertThat(positionCaptor.getValue().getQuantity()).isEqualByComparingTo("10.0000");
+
         ArgumentCaptor<PriceHistory> historyCaptor = ArgumentCaptor.forClass(PriceHistory.class);
         verify(priceHistoryRepository).save(historyCaptor.capture());
         PriceHistory history = historyCaptor.getValue();

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Briefcase, Mail, Shield, Target, User, Wallet } from 'lucide-react';
-import { getMyPositions } from '@/services/positionService';
+import { getMyPositions, positionQueryKey } from '@/services/positionService';
 import { getMyTrades } from '@/services/tradeService';
 import { getMyWallet } from '@/services/walletService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,7 +48,7 @@ export default function ProfilePage() {
   });
 
   const positionsQuery = useQuery({
-    queryKey: ['positions', currentUser?.userId],
+    queryKey: positionQueryKey(currentUser?.userId),
     queryFn: getMyPositions,
     enabled: isAuthInitialized && Boolean(currentUser?.userId),
     retry: false,

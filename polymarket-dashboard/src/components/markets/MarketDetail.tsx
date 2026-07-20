@@ -12,9 +12,18 @@ import { PriceChart } from './PriceChart';
 import { updateCurrentUser } from '@/services/authStorage';
 import { getMarketPriceHistory, getMarketStatistics } from '@/services/marketService';
 import { executeTrade, getTradesByMarket } from '@/services/tradeService';
-import { getMyPositions } from '@/services/positionService';
+import {
+  applyTradeToPositions,
+  getMyPositions,
+  positionQueryKey,
+} from '@/services/positionService';
 import { getMyWallet } from '@/services/walletService';
-import { TradeOutcomeName, TradeResponseDto, TradeType } from '@/types/api';
+import {
+  PositionResponseDto,
+  TradeOutcomeName,
+  TradeResponseDto,
+  TradeType,
+} from '@/types/api';
 import { EmptyState, LoadingSpinner } from '@/components/ui/Loading';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -67,7 +76,7 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
   });
 
   const positionsQuery = useQuery({
-    queryKey: ['positions', currentUser?.userId],
+    queryKey: positionQueryKey(currentUser?.userId),
     queryFn: getMyPositions,
     enabled: Boolean(currentUser),
     retry: false,
@@ -153,6 +162,10 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
       });
     },
     onSuccess: async (response) => {
+      const positionsKey = positionQueryKey(currentUser?.userId);
+      queryClient.setQueryData<PositionResponseDto[]>(positionsKey, (positions) =>
+        applyTradeToPositions(positions, response, market)
+      );
       setQuantity('1');
       updateCurrentUser({ walletBalance: response.walletBalanceAfterTrade });
       refreshCurrentUser();
@@ -166,7 +179,7 @@ export function MarketDetailComponent({ market, isLoading }: MarketDetailProps) 
         queryClient.invalidateQueries({ queryKey: ['markets-full'] }),
         queryClient.invalidateQueries({ queryKey: ['wallet', currentUser?.userId] }),
         queryClient.invalidateQueries({ queryKey: ['wallet-transactions', currentUser?.userId] }),
-        queryClient.invalidateQueries({ queryKey: ['positions', currentUser?.userId] }),
+        queryClient.invalidateQueries({ queryKey: positionsKey }),
         queryClient.invalidateQueries({ queryKey: ['trade-history', currentUser?.userId] }),
       ]);
     },

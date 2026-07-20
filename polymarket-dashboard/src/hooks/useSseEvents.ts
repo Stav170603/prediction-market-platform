@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/services/http';
 import { useAuth } from '@/contexts/AuthContext';
+import { positionQueryKey } from '@/services/positionService';
 
 interface MarketEventPayload {
   marketId?: number;
@@ -54,7 +55,7 @@ export function useSseEvents() {
 
       queryClient.invalidateQueries({ queryKey: ['wallet', targetUserId] });
       queryClient.invalidateQueries({ queryKey: ['wallet-transactions', targetUserId] });
-      queryClient.invalidateQueries({ queryKey: ['positions', targetUserId] });
+      queryClient.invalidateQueries({ queryKey: positionQueryKey(targetUserId) });
       queryClient.invalidateQueries({ queryKey: ['trade-history', targetUserId] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });

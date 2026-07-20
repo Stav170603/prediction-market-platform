@@ -76,14 +76,21 @@ The frontend lives in `polymarket-dashboard/`. The backend follows a conventiona
 
 ### Java 21 Requirement
 
-The Maven project compiles for Java 21. Verify both the runtime and compiler:
+Install JDK 21 and ensure both `JAVA_HOME` and `PATH` point to that installation.
+The Maven build validates the Java version before compilation and uses the JDK
+running Maven for main compilation, test compilation, tests, and the Spring Boot
+process.
+
+Verify the complete toolchain:
 
 ```bash
 java -version
 javac -version
+./mvnw -version
 ```
 
-Both commands should report version 21. Also ensure `JAVA_HOME` points to the JDK 21 installation.
+On Windows, use `.\mvnw.cmd -version` for the last command. Every command must
+report Java 21 or newer.
 
 ## Database Setup
 
@@ -129,14 +136,12 @@ From the repository root:
 ### Windows
 
 ```powershell
-.\mvnw.cmd test
 .\mvnw.cmd spring-boot:run
 ```
 
 ### macOS or Linux
 
 ```bash
-./mvnw test
 ./mvnw spring-boot:run
 ```
 
@@ -308,14 +313,18 @@ Add project screenshots here as the presentation assets are finalized.
 ### Java 21 Is Not Being Used
 
 If Maven reports `release version 21 not supported`, an older JDK is active.
+Install JDK 21, set both `JAVA_HOME` and `PATH` to that same installation, open
+a new terminal, and verify Maven before starting the application:
 
 ```powershell
-$env:JAVA_HOME="C:\Path\To\jdk-21"
-$env:Path="$env:JAVA_HOME\bin;$env:Path"
 .\mvnw.cmd -version
+.\mvnw.cmd spring-boot:run
 ```
 
-On macOS or Linux, update `JAVA_HOME` to your JDK 21 path and confirm with `./mvnw -version`.
+On macOS or Linux, confirm with `./mvnw -version`, then run
+`./mvnw spring-boot:run`. Maven fails during validation with
+`Java 21 or newer is required` if the wrapper is running on an older Java
+runtime.
 
 ### Port 8080 Is Already in Use
 
@@ -372,7 +381,7 @@ Then open [http://localhost:3001](http://localhost:3001).
 Run both project checks before presenting or deploying:
 
 ```powershell
-.\mvnw.cmd test
+.\mvnw.cmd clean test
 cd polymarket-dashboard
 npm.cmd run build
 ```

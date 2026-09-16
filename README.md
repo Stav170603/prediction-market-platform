@@ -12,6 +12,12 @@ This repository contains:
 
 > This project uses virtual points only. It does not process real money.
 
+## Project Context
+
+Collaborative Full Stack academic project developed as part of my B.Sc. studies.
+
+I took a leading role in the development of the platform and worked extensively across both the frontend and backend. My work included Next.js and TypeScript development, REST API integration, BUY and SELL flows, wallet and portfolio features, price history, trade history, profile and leaderboard functionality.
+
 ## Main Features
 
 - User registration and login with JWT authentication
